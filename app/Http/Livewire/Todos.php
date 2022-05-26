@@ -15,6 +15,8 @@ class Todos extends Component
     public $updateDescription = null;
     public $status = "Incomplete";
     public $updateID = null;
+    
+    public $option;
 
     protected $rules = [
         'name' => 'required',
@@ -106,7 +108,17 @@ class Todos extends Component
     use WithPagination;
     public function render()
     {
-        $data = Task::paginate(5);
+        if ($this->option == "complete") {
+            $data = Task::where('status', $this->option)->paginate(5);
+            $this->dispatchBrowserEvent('select-complete');
+        } elseif ($this->option == "incomplete") {
+            $data = Task::where('status', $this->option)->paginate(5);
+            $this->dispatchBrowserEvent('select-incomplete');
+        } else {
+            $data = Task::paginate(5);
+            $this->dispatchBrowserEvent('select-all');
+        }
+        
         return view('livewire.todos', ['data' => $data]);
     }
 }

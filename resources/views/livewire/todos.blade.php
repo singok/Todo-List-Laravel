@@ -9,14 +9,14 @@
                     <button id="add-button" type="button" class="btn btn-primary" style="padding: 5px 15px"><i class="fa-solid fa-plus" style="color: white"></i>&nbsp;&nbsp;ADD TASK</button>
                 </span>
                 <div class="btn-group btn-group-toggle mb-4" style="float: right" data-toggle="buttons">
-                    <label class="btn btn-secondary active">
-                        <input type="radio" name="options" id="option1" autocomplete="off" checked>All
+                    <label class="allTask btn btn-secondary active">
+                        <input wire:model="option" type="radio" id="allTask" autocomplete="off" checked>All
                     </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="options" id="option2" autocomplete="off">Complete
+                    <label class="completeTask btn btn-secondary">
+                        <input wire:model="option" type="radio" value="complete" id="completeTask" autocomplete="off">Complete
                     </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="options" id="option3" autocomplete="off">Incomplete
+                    <label class="incompleteTask btn btn-secondary">
+                        <input wire:model="option" type="radio" value="incomplete" id="incompleteTask" autocomplete="off">Incomplete
                     </label>
                 </div>
                 <table class="table table-striped">
@@ -35,15 +35,9 @@
                         @endphp
                         @foreach ($data as $info)
                             <tr>
-                                @if ($info->status == "Incomplete")
-                                    <th scope="row">{{ $count++ }}</th>
-                                    <td>{{ $info->name }}</td>
-                                    <td>{{ $info->description }}</td>
-                                @elseif ($info->status == "Complete")
-                                    <th scope="row"><del>{{ $count++ }}</del></th>
-                                    <td><del>{{ $info->name }}</del></td>
-                                    <td><del>{{ $info->description }}</del></td>
-                                @endif
+                                <th scope="row">{{ $count++ }}</th>
+                                <td>{{ $info->name }}</td>
+                                <td>{{ $info->description }}</td>
                                 <td>
                                     @if ($info->status == "Incomplete")
                                         <div style='color:black; background: rgb(230, 223, 165); border-radius:20px; text-align:center'>{{ $info->status }}</div>
@@ -153,6 +147,24 @@
                         "progressBar" : true,
                         "positionClass" : "toast-top-right",
                     };
+
+            });
+
+            // category status select
+            window.addEventListener('select-all', event => {
+                $('.allTask').addClass('active');
+                $('.completeTask').removeClass('active');
+                $('.incompleteTask').removeClass('active');
+            });
+            window.addEventListener('select-incomplete', event => {
+                $('.incompleteTask').addClass('active');
+                $('.allTask').removeClass('active');
+                $('.completeTask').removeClass('active');
+            });
+            window.addEventListener('select-complete', event => {
+                $('.completeTask').addClass('active');
+                $('.allTask').removeClass('active');
+                $('.incompleteTask').removeClass('active');
             });
 
             $('#add-button').on('click', function() {
