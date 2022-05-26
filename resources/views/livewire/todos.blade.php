@@ -54,24 +54,30 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalLabel"><b>New Task</b></h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button id="add-cross-button" type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              <form>
+              <form id="addTaskDetail">
                 <div class="form-group">
                   <label for="recipient-name" class="col-form-label">Name:</label>
                   <input wire:model.defer="name" type="text" class="form-control" id="recipient-name">
+                  <div class="invalid-feedback">
+                    Please, fill this field !!!
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="message-text" class="col-form-label">Description:</label>
                   <textarea wire:model.defer="description" class="form-control" id="message-text"></textarea>
+                  <div class="invalid-feedback">
+                    Please, fill this field !!!
+                  </div>
                 </div>
               </form>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id="add-close-button" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button wire:click.prevent="addTask" type="button" class="btn btn-primary">Add</button>
             </div>
           </div>
@@ -81,10 +87,36 @@
     @push('script')
         <script type="text/javascript">
 
-            // show employee add form
+            $(document).ready(function() {
+                toastr.options = {
+                        "progressBar" : true,
+                        "positionClass" : "toast-top-right",
+                    }
+            });
+
+            $('#add-cross-button, #add-close-button').on('click', function () {
+                $('#addForm').modal('hide');
+            });
+
+            // show task add form
             window.addEventListener('show-addForm', event => {
                 $('#addForm').modal('show');
             });
+
+            // display add success message
+            window.addEventListener('add-success', event => {
+                $('#addForm').modal('hide');
+                $('#addTaskDetail')[0].reset();
+                toastr.success(event.detail.message);
+            });
+
+            // display add error message
+            window.addEventListener('add-failure', event => {
+                $('#addForm').modal('hide');
+                $('#addTaskDetail')[0].reset();
+                toastr.error(event.detail.message);
+            });
+            
         </script>
     @endpush
 </div>
