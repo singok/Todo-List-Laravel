@@ -9,8 +9,12 @@ use Illuminate\Support\Facades\DB;
 
 class Todos extends Component
 {
-    public $name, $description;
+    public $name = null;
+    public $description = null;
+    public $updateName = null;
+    public $updateDescription = null;
     public $status = "Incomplete";
+    public $updateID = null;
 
     protected $rules = [
         'name' => 'required',
@@ -29,11 +33,13 @@ class Todos extends Component
 
         if($feedback) {
             $this->dispatchBrowserEvent('add-success', [
-                'message' => 'Successful !!! A new task added.'
+                'message' => 'Task Added successfully !!!'
             ]);
+            $this->name = null;
+            $this->description = null;
         } else {
             $this->dispatchBrowserEvent('add-failure', [
-                'message' => 'Error !!! Something went wrong.'
+                'message' => 'Something went wrong !!!'
             ]);
         }
     }
@@ -58,6 +64,43 @@ class Todos extends Component
         $this->dispatchBrowserEvent('mark-incomplete', [
             'message' => 'Unmarked as incomplete !!!'
         ]);
+    }
+
+    // delete tasks
+    public function deleteTask($id)
+    {
+        DB::table('task')->where('id', $id)->delete();
+        $this->dispatchBrowserEvent('task-delete', [
+            'message' => 'Task deleted successfully !!!'
+        ]);
+    }
+
+    // show update form
+    public function showUpdateForm($id)
+    {
+        $this->updateID = $id;
+        $data = DB::table('task')->where('id', '=', $id)->first();
+        $this->updateName = $data->name;
+        $this->updateDescription = $data->description;
+        $this->dispatchBrowserEvent('update-form');
+    }
+
+    // update task details
+    public function updateTask()
+    {
+        DB::table('task')->where('id', $this->updateID)->update([
+            'name' => $this->updateName,
+            'description' => $this->updateDescription
+        ]);
+        $this->dispatchBrowserEvent('update-success', [
+            'message' => 'Task Updated Successfully !!!'
+        ]);
+    }
+
+    // close update form 
+    public function closeUpdateForm()
+    {
+        $this->dispatchBrowserEvent('update-form-close');
     }
 
     use WithPagination;
