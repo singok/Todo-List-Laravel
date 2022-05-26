@@ -2,10 +2,10 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-
+            
             <div class="p-6 bg-white border-b border-gray-200">
                 <span style="float: left">
-                    <button wire:click.prevent="showForm" type="button" class="btn btn-primary" style="padding: 5px 15px">Add</button>
+                    <button id="add-button" type="button" class="btn btn-primary" style="padding: 5px 15px">Add Task</button>
                 </span>
                 <div class="btn-group btn-group-toggle mb-4" style="float: right" data-toggle="buttons">
                     <label class="btn btn-secondary active">
@@ -25,25 +25,43 @@
                         <th scope="col">#</th>
                         <th scope="col">Name</th></th>
                         <th scope="col">Description</th>
-                        <th scope="col">Status</th>
+                        <th scope="col" style="text-align:center">Status</th>
                         <th scope="col" style="text-align:center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                        <td style="text-align:center">
-                            <a href="" style="color:black"><i class="fa-solid fa-check fa-xl" onmouseover="this.style.color='green'" onmouseout="this.style.color='black'"></i></a>
-                            <a href="" style="color:black"><i class="fa-solid fa-pen-to-square fa-lg mx-2" onmouseover="this.style.color='blue'" onmouseout="this.style.color='black'"></i></a>
-                            <a href="" style="color:black"><i class="fa-solid fa-trash fa-lg" onmouseover="this.style.color='red'" onmouseout="this.style.color='black'"></i></a>
-                        </td>
-                        </tr>
-                    
+                        @php
+                            $count = 1;
+                        @endphp
+                        @foreach ($data as $info)
+                            <tr>
+                                <th scope="row">{{ $count++ }}</th>
+                                <td>{{ $info->name }}</td>
+                                <td>{{ $info->description }}</td>
+                                <td>
+                                    @if ($info->status == "Incomplete")
+                                        <div style='color:black; background: rgb(202, 200, 200); border-radius:20px; text-align:center'>{{ $info->status }}</div>
+                                    @elseif ($info->status == "Complete")
+                                        <div style='color:black; background: rgb(98, 182, 98); border-radius:20px; text-align:center'>{{ $info->status }}</div>
+                                    @endif
+                                </td>
+                                <td style="text-align:center">
+                                    @if ($info->status == "Incomplete")
+                                        <a href="" wire:click.prevent="changeStatusToComplete('{{ $info->id }}')" style="color:black"><i class="fa-regular fa-square fa-xl" onmouseover="this.style.color='green'" onmouseout="this.style.color='black'"></i></a>
+                                    @elseif ($info->status == "Complete")
+                                        <a href="" wire:click.prevent="changeStatusToIncomplete('{{ $info->id }}')" style="color:black"><i class="fa-regular fa-square-check fa-xl" onmouseover="this.style.color='red'" onmouseout="this.style.color='black'"></i></a>
+                                    @endif
+                                    <a href="" style="color:black"><i class="fa-solid fa-pen fa-lg mx-3" onmouseover="this.style.color='blue'" onmouseout="this.style.color='black'"></i></a>
+                                    <a href="" style="color:black"><i class="fa-solid fa-trash fa-lg" onmouseover="this.style.color='red'" onmouseout="this.style.color='black'"></i></a>
+                                </td>
+                            </tr>
+                        @endforeach
+                        
                     </tbody>
                 </table>
+                <div>
+                    {{ $data->links() }}
+                </div>
             </div>
         </div>
     </div>
@@ -94,29 +112,34 @@
                     }
             });
 
-            $('#add-cross-button, #add-close-button').on('click', function () {
-                $('#addForm').modal('hide');
-            });
-
-            // show task add form
-            window.addEventListener('show-addForm', event => {
+            $('#add-button').on('click', function() {
                 $('#addForm').modal('show');
             });
 
+            $('#add-cross-button, #add-close-button').on('click', function () {
+                $('#addForm').modal('hide');
+            });
+            
             // display add success message
             window.addEventListener('add-success', event => {
                 $('#addForm').modal('hide');
-                $('#addTaskDetail')[0].reset();
                 toastr.success(event.detail.message);
             });
 
             // display add error message
             window.addEventListener('add-failure', event => {
                 $('#addForm').modal('hide');
-                $('#addTaskDetail')[0].reset();
                 toastr.error(event.detail.message);
             });
-            
+
+            // display mark as complete
+            window.addEventListener('mark-complete', event => {
+                toastr.success(event.detail.message);
+            });
+            window.addEventListener('mark-incomplete', event => {
+                toastr.warning(event.detail.message);
+            });
+
         </script>
     @endpush
 </div>

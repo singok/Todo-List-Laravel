@@ -4,6 +4,8 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Task;
+use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
 
 class Todos extends Component
 {
@@ -14,12 +16,6 @@ class Todos extends Component
         'name' => 'required',
         'description' => 'required'
     ];
-
-    // show add form
-    public function showForm()
-    {
-        $this->dispatchBrowserEvent('show-addForm');
-    }
 
     // insert task details
     public function addTask()
@@ -42,8 +38,32 @@ class Todos extends Component
         }
     }
 
+    // change status (i.e Complete)
+    public function changeStatusToComplete($id)
+    {
+        DB::table('task')->where('id', $id)->update([
+            'status' => 'Complete'
+        ]);
+        $this->dispatchBrowserEvent('mark-complete', [
+            'message' => 'Marked as complete !!!'
+        ]);
+    }
+
+    // change status (i.e Incomplete)
+    public function changeStatusToIncomplete($id)
+    {
+        DB::table('task')->where('id', $id)->update([
+            'status' => 'Incomplete'
+        ]);
+        $this->dispatchBrowserEvent('mark-incomplete', [
+            'message' => 'Unmarked as incomplete !!!'
+        ]);
+    }
+
+    use WithPagination;
     public function render()
     {
-        return view('livewire.todos');
+        $data = Task::paginate(5);
+        return view('livewire.todos', ['data' => $data]);
     }
 }
